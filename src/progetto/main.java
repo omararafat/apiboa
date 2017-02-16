@@ -167,7 +167,7 @@ public class main {
 		
 		
 		Template temp = cfg.getTemplate("test.ftlh");
-		FileWriter out = new FileWriter(new File("C:/output.html"));
+		FileWriter out = new FileWriter(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/output.html"));
 		temp.process(dataModel, out);
 		
 //TO-DO

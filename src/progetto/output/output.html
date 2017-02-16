@@ -3,11 +3,17 @@
 <head>
 </head>
 <body>
- <#list linguaggio as l, val>
-		<b>${l}</b>:${val}<br>
-	  <#else>None
-	  </#list>
-	  <br>
+ 		<b>Java</b>:584<br>
+	  		<b>Shell</b>:708<br>
+	  		<b>CSS</b>:371<br>
+	  		<b>C++</b>:315<br>
+	  		<b>C</b>:397<br>
+	  		<b>JavaScript</b>:1.529<br>
+	  		<b>PHP</b>:490<br>
+	  		<b>Perl</b>:277<br>
+	  		<b>Ruby</b>:942<br>
+	  		<b>Python</b>:657<br>
+	  	  <br>
 	  <br>
 
 	  
@@ -47,13 +53,13 @@
 
 <body>
 Output query: <br>
-<#list linguaggio as l, val>['${l}', ${val}], <#else></#list>
+['Java', 584], ['Shell', 708], ['CSS', 371], ['C++', 315], ['C', 397], ['JavaScript', 1.529], ['PHP', 490], ['Perl', 277], ['Ruby', 942], ['Python', 657], 
 <br>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="Donut3D.js"></script>
 	<script>
 	  var resp = [
-	  	<#list linguaggio as l, val>{key:'${l}', value: ${val}}<#sep>, <#else></#list>
+	  	{key:'Java', value: 584}, {key:'Shell', value: 708}, {key:'CSS', value: 371}, {key:'C++', value: 315}, {key:'C', value: 397}, {key:'JavaScript', value: 1.529}, {key:'PHP', value: 490}, {key:'Perl', value: 277}, {key:'Ruby', value: 942}, {key:'Python', value: 657}
 	  ];	 
 
 function getRandomColor() {
