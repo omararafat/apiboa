@@ -16,7 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.awt.Desktop;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 
 import freemarker.template.*; 
 
@@ -166,9 +168,14 @@ public class main {
 //------fine creazione configurazione per freemarker--------
 		
 		
+	//	OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/output2.html", true), "UTF-8");
 		Template temp = cfg.getTemplate("test.ftlh");
-		FileWriter out = new FileWriter(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/output.html"));
+		FileWriter out = new FileWriter(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/output2.html"));
 		temp.process(dataModel, out);
+		
+/*		Environment env = temp.createProcessingEnvironment(dataModel, out);
+		env.setOutputEncoding(outputCharset);
+		env.process();*/
 		
 //TO-DO
 		//modificare getDataModel in modo da avere chiave: linguaggio e sottochiave: valore numerico
@@ -186,6 +193,17 @@ public class main {
 			"counts[] = CSS, 371.0 \n"+
 			"counts[] = C++, 315.0 \n"+
 			"counts[] = Perl, 277.0 ";
+	
+	static String s2 = "counts[] = JavaScript, 1473096.0 \n"+
+"counts[] = Ruby, 889738.0 \n"+
+"counts[] = Shell, 700831.0 \n"+
+"counts[] = Python, 620213.0 \n"+
+"counts[] = Java, 554864.0 \n"+
+"counts[] = PHP, 489082.0 \n"+
+"counts[] = C, 419044.0 \n"+
+"counts[] = CSS, 354715.0 \n"+
+"counts[] = C++, 333877.0 \n"+
+"counts[] = Perl, 274174.0";
 
 	public static void main(String[] args){
 		System.out.println("hello world");
@@ -196,19 +214,17 @@ public class main {
 			client.login(args[0], args[1]);
 			System.out.println("login succesfull");	
 			
-			JobHandle job = client.getJob(52389);
+			JobHandle job = client.getJob(52655);
 			String s= job.getOutput();
 			System.out.println(s);
 */			
 	
-			HashMap<String, Integer> dataModel = parserizzaOutput1("counts",s1);
+			HashMap<String, Integer> dataModel = parserizzaOutput1("counts",s2);
 			
 			System.out.println("dimensione mappa: "+dataModel.size() );
 
 			for(String key: dataModel.keySet())
-				System.out.println(key +" "+ dataModel.get(key));
-
-
+				System.out.println(key +": "+ dataModel.get(key));
 			
 			
 			System.out.println("freemarker start");

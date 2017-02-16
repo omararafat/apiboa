@@ -4,7 +4,7 @@
 </head>
 <body>
  <#list linguaggio as l, val>
-		<b>${l}</b>:${val}<br>
+		${l}:${val}<br>
 	  <#else>None
 	  </#list>
 	  <br>
@@ -17,7 +17,7 @@
 
 
 
-
+<#setting number_format="computer">
 
 <!DOCTYPE html>
 <meta charset="utf-8">
@@ -47,7 +47,7 @@
 
 <body>
 Output query: <br>
-<#list linguaggio as l, val>['${l}', ${val}], <#else></#list>
+<#list linguaggio as l, val>['${l}', ${val}]<#sep>, <#else></#list>
 <br>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="Donut3D.js"></script>
