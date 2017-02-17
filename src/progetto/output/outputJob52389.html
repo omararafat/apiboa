@@ -3,11 +3,17 @@
 <head>
 </head>
 <body>
- <#list key as k, val>
-		${k}:${val}<br>
-	  <#else>None
-	  </#list>
-	  <br>
+ 		Java:584<br>
+	  		Shell:708<br>
+	  		CSS:371<br>
+	  		C++:315<br>
+	  		C:397<br>
+	  		JavaScript:1.529<br>
+	  		PHP:490<br>
+	  		Perl:277<br>
+	  		Ruby:942<br>
+	  		Python:657<br>
+	  	  <br>
 	  <br>
 
 	  
@@ -17,7 +23,6 @@
 
 
 
-<#setting number_format="computer">
 
 <!DOCTYPE html>
 <meta charset="utf-8">
@@ -47,13 +52,13 @@
 
 <body>
 Output query: <br>
-<#list key as k, val>['${k}', ${val}]<#sep>, <#else></#list>
+['Java', 584], ['Shell', 708], ['CSS', 371], ['C++', 315], ['C', 397], ['JavaScript', 1529], ['PHP', 490], ['Perl', 277], ['Ruby', 942], ['Python', 657]
 <br>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="Donut3D.js"></script>
 	<script>
 	  var resp = [
-	  	<#list key as k, val>{key:'${k}', value: ${val}}<#sep>, <#else></#list>
+	  	{key:'Java', value: 584}, {key:'Shell', value: 708}, {key:'CSS', value: 371}, {key:'C++', value: 315}, {key:'C', value: 397}, {key:'JavaScript', value: 1529}, {key:'PHP', value: 490}, {key:'Perl', value: 277}, {key:'Ruby', value: 942}, {key:'Python', value: 657}
 	  ];	 
 
 function getRandomColor() {

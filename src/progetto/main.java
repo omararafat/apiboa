@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.StringTokenizer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -94,55 +95,75 @@ public class main {
 	}
 	
 	public static void stampaJobs(BoaClient client) throws Exception{
-	    System.out.println("hai "+client.getJobCount()+" job inviati");
+	    System.out.println("hai inviato "+client.getJobCount()+" job");
 		
 	    for (final JobHandle jh : client.getJobList()){		
 			System.out.println(jh);
 			if( jh.getExecutionStatus().equals(ExecutionStatus.FINISHED)
-					//commenta righe seqguenti per evitare l'output dei job "avarage churn rate" 
-					&& jh.getId()!=52384
-					&& jh.getId()!=52383
+					//decommenta righe seqguenti per avere l'output dei job "avarage churn rate": 
+					//&& jh.getId()!=52384
+					//&& jh.getId()!=52383
 					){ 
 				System.out.println("output:\n"+jh.getOutput()+"\n");
 			}
 		}
 	}
 
-//top(X) of string weight int
-	public static HashMap parserizzaOutput1(String var, String output){
+//counts: output top(10) of string weight int;
+//output sottoforma di "counts[] = JavaScript, 1529.0\n"....
+	public static HashMap parserizzaOutput1(String output){
 		StringTokenizer st = new StringTokenizer(output);
 		String token;
-		int val;
+		double val;
 		HashMap ris = new HashMap();	//HashMap<String, int>
 		HashMap coppia = new HashMap();	//HashMap<String, int>
 		System.out.println("\nparserizzaoutput\n");
-		int i = 0;
-//mi aspetto un output sottoforma di "counts[] = JavaScript, 1529.0\n"....
 	     while (st.hasMoreTokens()) {
-//elimino nome variabile output
-	    	 token = st.nextToken("=");//"counts[] " oppure "\n counts[] "
-//elimino segno uguale e spazio successivo
-	    	 token = st.nextToken(" ");//"="
-	    	 token = st.nextToken(" ");//"JavaScript,"
-//sovrascriviamo la virgola finale e abbiamo ottenuto il linguaggio
-	    	 token = token.replace(",", "");//"JavaScript"
-
-/*una volta ottenuto il token contenente il numero,
- * elimino lo spazio iniziale e sovrascrivo la parte decimale.
- * NB: la query in questione restituisce sclusivamente numeri interi con parte decimale nulla */
-	    	 val = Integer.parseInt( st.nextToken("\n").trim().replace(".0","") );//" 1529.0"->"1529.0"->"1529"
-
+	    	 token = st.nextToken("=");			//"counts[] " oppure "\n counts[] "
+	    	 token = st.nextToken(" ");			//"="
+	    	 token = st.nextToken(" ");			//"JavaScript,"
+	    	 token = token.replace(",", "");	//"JavaScript"
+	    	 val = Double.parseDouble( st.nextToken("\n").trim() );//" 1529.0"->"1529.0"->1529.0
 //inserisco la coppia ottenuta nella HashMap
 	    	 coppia.put(token, val);
-	    	 ris.put("linguaggio", coppia);
-//	    	 ris.put(String.valueOf(i), token);
-	    	 i++;
+	    	 ris.put("key", coppia);
 	     }
-	     
 	     return ris;
 	}
 	
-	public static void freemarker(HashMap dataModel) throws Exception{
+//counts: output mean[string] of int;
+//output sottoforma di "counts[10084859] = 16.5 \n"....
+	public static HashMap parserizzaOutput2(String output){
+		StringTokenizer st = new StringTokenizer(output);
+		String token;
+		int val; 	//id progetto
+		double val2;//risultato
+		HashMap ris = new HashMap();
+		HashMap ris2 = new HashMap();
+		System.out.println("\nparserizzaoutpu2t\n");
+	     while (st.hasMoreTokens()) {
+	 		HashMap coppia1 = new HashMap();	//HashMap<String, int> per l'id progetto
+	 		HashMap coppia2 = new HashMap();	//HashMap<String, double> per il ris
+//recupero id
+	    	 token = st.nextToken("[");			//"counts"
+	    	 token = st.nextToken("]");			//"[10084859"
+	    	 token = token.replace("[", "");	//"10084859"
+	    	 val = Integer.parseInt(token);
+//recupero valore
+	    	 token = st.nextToken("\n");		//"] = 16.5 "
+	    	 token = token.replace("] = ", "");	//=16.5
+	    	 val2 = Double.parseDouble(token);
+//inserisco la coppia ottenuta nella HashMap
+	    	 coppia1.put("id", val);
+	    	 coppia2.put("val", val2);
+	    	 ris.put(coppia1, coppia2);
+	    	 ris2.put("key", ris);
+	     }
+	     return ris2;
+	}
+
+static String pathFile = "C:/progetto%20tesi/eclipse%20workspace/progetto/src/progetto/output/";
+	public static void freemarker(HashMap dataModel,String test, String outputFile) throws Exception{
 		// Create your Configuration instance, and specify if up to what FreeMarker
 		// version (here 2.3.25) do you want to apply the fixes that are not 100%
 		// backward-compatible. See the Configuration JavaDoc for details.
@@ -169,21 +190,18 @@ public class main {
 		
 		
 	//	OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/output2.html", true), "UTF-8");
-		Template temp = cfg.getTemplate("test.ftlh");
-		FileWriter out = new FileWriter(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/output2.html"));
+		Template temp = cfg.getTemplate(test);
+		File x = new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/"+outputFile);
+		FileWriter out = new FileWriter(x);
 		temp.process(dataModel, out);
-		
-/*		Environment env = temp.createProcessingEnvironment(dataModel, out);
-		env.setOutputEncoding(outputCharset);
-		env.process();*/
-		
-//TO-DO
-		//modificare getDataModel in modo da avere chiave: linguaggio e sottochiave: valore numerico
+//lancio browser per visualizzare output
+		Desktop.getDesktop().browse( new URI("file:///"+pathFile+ outputFile) );
 		
 	}
 	
-//copia output per evitare di attendere chiamata boa
-	static String s1="counts[] = JavaScript, 1529.0 \n"+
+//copie output per evitare di attendere chiamata boa
+//conteggio linguaggi dataset small	
+static String s1="counts[] = JavaScript, 1529.0 \n"+
 			"counts[] = Ruby, 942.0 \n"+
 			"counts[] = Shell, 708.0 \n"+
 			"counts[] = Python, 657.0 \n"+
@@ -194,7 +212,8 @@ public class main {
 			"counts[] = C++, 315.0 \n"+
 			"counts[] = Perl, 277.0 ";
 	
-	static String s2 = "counts[] = JavaScript, 1473096.0 \n"+
+//conteggio linguaggi dataset intero
+static String s2 = "counts[] = JavaScript, 1473096.0 \n"+
 "counts[] = Ruby, 889738.0 \n"+
 "counts[] = Shell, 700831.0 \n"+
 "counts[] = Python, 620213.0 \n"+
@@ -205,30 +224,42 @@ public class main {
 "counts[] = C++, 333877.0 \n"+
 "counts[] = Perl, 274174.0";
 
+//inizio output churn rate
+static String s3 = "counts[10084859] = 16.5 \n"+
+"counts[10096336] = 6.5 \n"+
+"counts[10187710] = 22.0 \n"+
+"counts[10267115] = 4.578947368421052 \n"+
+"counts[10278695] = 16.647058823529413 \n"+
+"counts[10366506] = 4.428571428571429";
+	
 	public static void main(String[] args){
 		System.out.println("hello world");
 		
 		try{
 	//login architettura BOA
-/*			final BoaClient client = new BoaClient();
+			final BoaClient client = new BoaClient();
 			client.login(args[0], args[1]);
 			System.out.println("login succesfull");	
 			
-			JobHandle job = client.getJob(52655);
+			JobHandle job = client.getJob(52383);
 			String s= job.getOutput();
 			System.out.println(s);
-*/			
+			
 	
-			HashMap<String, Integer> dataModel = parserizzaOutput1("counts",s2);
+		//	HashMap<String, Integer> dataModel = parserizzaOutput1(s);//job 52389, 52655
+			HashMap<String, Integer> dataModel = parserizzaOutput2(s);//per job 52383, 52384
 			
-			System.out.println("dimensione mappa: "+dataModel.size() );
+		//	System.out.println("dimensione mappa: "+dataModel.size() );			
+			
+	/*	//debug: stampo mappa ottenuta per controllo interno dei valori
+	 		for( Map.Entry<String, Integer> entry : dataModel.entrySet()) {
+				System.out.println(entry+" : "+entry.getValue());
+			}*/
+			
 
-			for(String key: dataModel.keySet())
-				System.out.println(key +": "+ dataModel.get(key));
-			
 			
 			System.out.println("freemarker start");
-			freemarker(dataModel);
+			freemarker(dataModel,"test2.ftlh", "outputJob52383.html");
 					
 			
 			

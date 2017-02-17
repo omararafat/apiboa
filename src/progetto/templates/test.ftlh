@@ -3,8 +3,8 @@
 <head>
 </head>
 <body>
- <#list linguaggio as l, val>
-		${l}:${val}<br>
+ <#list key as k, val>
+		${k}:${val}<br>
 	  <#else>None
 	  </#list>
 	  <br>
@@ -47,13 +47,13 @@
 
 <body>
 Output query: <br>
-<#list linguaggio as l, val>['${l}', ${val}]<#sep>, <#else></#list>
+<#list key as k, val>['${k}', ${val}]<#sep>, <#else></#list>
 <br>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="Donut3D.js"></script>
 	<script>
 	  var resp = [
-	  	<#list linguaggio as l, val>{key:'${l}', value: ${val}}<#sep>, <#else></#list>
+	  	<#list key as k, val>{key:'${k}', value: ${val}}<#sep>, <#else></#list>
 	  ];	 
 
 function getRandomColor() {
