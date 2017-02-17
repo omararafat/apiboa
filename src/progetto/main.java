@@ -256,19 +256,10 @@ static String s3 = "counts[10084859] = 16.5 \n"+
 				System.out.println(entry+" : "+entry.getValue());
 			}*/
 			
-
-			
 			System.out.println("freemarker start");
+//USAGE (data model, template, nomefileoutput)
 			freemarker(dataModel,"test2.ftlh", "outputJob52383.html");
-					
-			
-			
-			
-			
-			
-			
-			
-	//...		Desktop.getDesktop().browse(new URI("https://www.google.it"));
+
 			
 	//		nuovaQuery(client);
 			
