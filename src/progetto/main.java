@@ -12,6 +12,8 @@ import edu.iastate.cs.boa.NotLoggedInException;
 import java.lang.Thread;
 import java.net.URI;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -148,13 +150,13 @@ public class main {
 	    	 token = st.nextToken("[");			//"counts"
 	    	 token = st.nextToken("]");			//"[10084859"
 	    	 token = token.replace("[", "");	//"10084859"
-	    	 val = Integer.parseInt(token);
+	    //	 val = Integer.parseInt(token);
+	    	 coppia1.put("id", token);
 //recupero valore
 	    	 token = st.nextToken("\n");		//"] = 16.5 "
 	    	 token = token.replace("] = ", "");	//=16.5
 	    	 val2 = Double.parseDouble(token);
 //inserisco la coppia ottenuta nella HashMap
-	    	 coppia1.put("id", val);
 	    	 coppia2.put("val", val2);
 	    	 ris.put(coppia1, coppia2);
 	    	 ris2.put("key", ris);
@@ -195,7 +197,7 @@ static String pathFile = "C:/progetto%20tesi/eclipse%20workspace/progetto/src/pr
 		FileWriter out = new FileWriter(x);
 		temp.process(dataModel, out);
 //lancio browser per visualizzare output
-		Desktop.getDesktop().browse( new URI("file:///"+pathFile+ outputFile) );
+	//	Desktop.getDesktop().browse( new URI("file:///"+pathFile+ outputFile) );
 		
 	}
 	
@@ -232,34 +234,94 @@ static String s3 = "counts[10084859] = 16.5 \n"+
 "counts[10278695] = 16.647058823529413 \n"+
 "counts[10366506] = 4.428571428571429";
 	
-	public static void main(String[] args){
+static String s4 = "counts[10084859] = asd, 88.5 \n"+
+		"counts[10096336] =asd,  6.5 \n"+
+		"counts[10187710] = asd, 22.0 \n"+
+		"counts[10267115] = asd, 4.578947368421052 \n"+
+		"counts[10278695] = asd, 16.647058823529413 \n"+
+		"counts[10366506] = asd, 4.428571428571429";
+
+	public static void parseOutputBoa(String outputBoa, int valueCount, String[] regexs){
+		int regexCount = valueCount*2; //start/end delimiter for each value
+    	int start, end;
+    	//String regexs[] = new String[regexCount];
+    	Pattern patterns[] = new Pattern[regexCount];
+    	String outputs[] = new String[regexCount/2];
+    	
+    	for(int i = 0; i < regexCount; i++){
+    		patterns[i] = Pattern.compile(regexs[i]);
+    	}
+
+    	Matcher match = patterns[0].matcher(outputBoa);//inizializzo il matching
+
+	    while(match.find()){//right here we "parse" the variable name of the boa's output 
+    		start = match.start();
+	    	end = match.end();
+	    	for (int i = 1; i < regexCount; i++){
+		    	match.usePattern(patterns[i%regexCount]);
+		    	match.find();
+		    	if (!match.hitEnd()){
+			    	start = end;
+			    	end = match.end();
+			    	if( i%2 == 1){    	
+			    		outputs[i/2] = outputBoa.substring(start, end-1);//right here we save the wanted value
+			    	}
+		    	}else{
+		    		outputs[i/2] = outputBoa.substring(start, end-1);//here we save the final saved value
+		    	}
+	    	}
+	    	for(int k=0; k<valueCount; k++){ 		System.out.println(k+" "+outputs[k]);  	}
+	    	match.usePattern(patterns[0]);//before restarting the cycle we reset the initial pattern
+	    }
+	}
+
+
+public static void main(String[] args){
 		System.out.println("hello world");
-		
 		try{
+			String regexs[] = new String[4];
+			String input=s1+"\n";	    	
+ 			regexs[0] = "=";
+	    	regexs[1] = ",";
+	    	regexs[2] = " ";
+	    	regexs[3] = "\n";
+   	Prova2 x1 = new Prova2(2);//devo passargli direttamente il json
+   	
+   	
+   	
+   			//x1.parseXml(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/prova.xml") );
+	    	x1.parseOutputBoa(input, 2, regexs);
+	    
+			
+			
+			
+			
+			
+			
 	//login architettura BOA
-			final BoaClient client = new BoaClient();
+		/*	final BoaClient client = new BoaClient();
 			client.login(args[0], args[1]);
 			System.out.println("login succesfull");	
 			
 			JobHandle job = client.getJob(52383);
 			String s= job.getOutput();
-			System.out.println(s);
+			System.out.println(s);*/
 			
 	
-		//	HashMap<String, Integer> dataModel = parserizzaOutput1(s);//job 52389, 52655
-			HashMap<String, Integer> dataModel = parserizzaOutput2(s);//per job 52383, 52384
+		//	HashMap<String, Integer> dataModel = parserizzaOutput1(s1);//job 52389, 52655
+		//	HashMap<String, Integer> dataModel = parserizzaOutput2(s);//per job 52383, 52384
 			
 		//	System.out.println("dimensione mappa: "+dataModel.size() );			
 			
-	/*	//debug: stampo mappa ottenuta per controllo interno dei valori
-	 		for( Map.Entry<String, Integer> entry : dataModel.entrySet()) {
+		//debug: stampo mappa ottenuta per controllo interno dei valori
+	 	/*	for( Map.Entry<String, Integer> entry : dataModel.entrySet()) {
 				System.out.println(entry+" : "+entry.getValue());
-			}*/
+			}
 			
 			System.out.println("freemarker start");
 //USAGE (data model, template, nomefileoutput)
-			freemarker(dataModel,"test2.ftlh", "outputJob52383.html");
-
+			freemarker(dataModel,"temp.ftlh", "prova.csv");
+		*/
 			
 	//		nuovaQuery(client);
 			
@@ -279,7 +341,7 @@ static String s3 = "counts[10084859] = 16.5 \n"+
 			e.printStackTrace();
 		}
 		
-		System.out.println("terminato");
+		System.out.println("\nterminato");
 	}
 
 }

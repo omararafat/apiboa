@@ -1,0 +1,35 @@
+ID,churnRate
+<!-- FREEMARKER ERROR MESSAGE STARTS HERE --><!-- ]]> --><script language=javascript>//"></script><script language=javascript>//'></script><script language=javascript>//"></script><script language=javascript>//'></script></title></xmp></script></noscript></style></object></head></pre></table></form></table></table></table></a></u></i></b><div align='left' style='background-color:#FFFF7C; display:block; border-top:double; padding:4px; margin:0; font-family:Arial,sans-serif; color:#A80000; font-size:12px; font-style:normal; font-variant:normal; font-weight:normal; text-decoration:none; text-transform: none'><b style='font-size:12px; font-style:normal; font-weight:bold; text-decoration:none; text-transform: none;'>FreeMarker template error  (HTML_DEBUG mode; use RETHROW in production!)</b><pre style='display:block; background: none; border: 0; margin:0; padding: 0;font-family:monospace; color:#A80000; font-size:12px; font-style:normal; font-variant:normal; font-weight:normal; text-decoration:none; text-transform: none; white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word;'>
+
+Expected an extended hash, but this has evaluated to a string (wrapper: f.t.SimpleScalar):
+==> k  [in template "temp.ftlh" at line 4, column 16]
+
+----
+FTL stack trace ("~" means nesting-related):
+	- Failed at: #list-#else-container  [in template "temp.ftlh" at line 4, column 9]
+----
+
+Java stack trace (for programmers):
+----
+freemarker.core.NonExtendedHashException: [... Exception message was already printed; see it above ...]
+	at freemarker.core.IteratorBlock$IterationContext.executedNestedContentForHashListing(IteratorBlock.java:426)
+	at freemarker.core.IteratorBlock$IterationContext.executeNestedContent(IteratorBlock.java:273)
+	at freemarker.core.IteratorBlock$IterationContext.accept(IteratorBlock.java:243)
+	at freemarker.core.Environment.visitIteratorBlock(Environment.java:596)
+	at freemarker.core.IteratorBlock.acceptWithResult(IteratorBlock.java:108)
+	at freemarker.core.ListElseContainer.accept(ListElseContainer.java:40)
+	at freemarker.core.Environment.visit(Environment.java:363)
+	at freemarker.core.IteratorBlock$IterationContext.executedNestedContentForHashListing(IteratorBlock.java:369)
+	at freemarker.core.IteratorBlock$IterationContext.executeNestedContent(IteratorBlock.java:273)
+	at freemarker.core.IteratorBlock$IterationContext.accept(IteratorBlock.java:243)
+	at freemarker.core.Environment.visitIteratorBlock(Environment.java:596)
+	at freemarker.core.IteratorBlock.acceptWithResult(IteratorBlock.java:108)
+	at freemarker.core.ListElseContainer.accept(ListElseContainer.java:40)
+	at freemarker.core.Environment.visit(Environment.java:327)
+	at freemarker.core.Environment.visit(Environment.java:333)
+	at freemarker.core.Environment.process(Environment.java:306)
+	at freemarker.template.Template.process(Template.java:386)
+	at progetto.main.freemarker(main.java:196)
+	at progetto.main.main(main.java:261)
+
+</pre></div></html>
