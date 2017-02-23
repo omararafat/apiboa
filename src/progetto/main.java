@@ -279,22 +279,34 @@ static String s4 = "counts[10084859] = asd, 88.5 \n"+
 public static void main(String[] args){
 		System.out.println("hello world");
 		try{
-			String regexs[] = new String[4];
-			String input=s1+"\n";	    	
+			String regexs[] = new String[4];	
  			regexs[0] = "=";
 	    	regexs[1] = ",";
 	    	regexs[2] = " ";
 	    	regexs[3] = "\n";
-   	Prova2 x1 = new Prova2(2);//devo passargli direttamente il json
+   	Prova2 x1 = new Prova2(2);
    	
-   	
-   	
-   			//x1.parseXml(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/prova.xml") );
-	    	x1.parseOutputBoa(input, 2, regexs);
-	    
+   			String input= "";
 			
-			
-			
+			input=s1+"\n";	    
+   			x1.parseXml(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/prova.xml") );
+	    	x1.parseOutputBoa(input);
+	    	x1.freemarker("test.ftlh", "prova");
+	    	
+	    	input=s2+"\n";
+	    	x1.parseOutputBoa(input);
+	    	x1.freemarker("test.ftlh", "prova2");
+	    	
+	    	input=s3+"\n";	    
+   			x1.parseXml(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/prova2.xml") );
+	    	x1.parseOutputBoa(input);
+	    	x1.freemarker("test.ftlh", "prova3");
+	    	
+	    	
+	    	//x1.parseOutputBoa2(input, 2, regexs);
+/*TODO: dentro pareseOutputBoa2 far restituire Arraylist<<T><T>> da dare in pasto a freemarker()
+ * 		+ vedere se necessarie modifiche al template; facile dato che si aspettava mappa di mappe :'(
+ * */	    
 			
 			
 			
@@ -307,21 +319,21 @@ public static void main(String[] args){
 			String s= job.getOutput();
 			System.out.println(s);*/
 			
-	
-		//	HashMap<String, Integer> dataModel = parserizzaOutput1(s1);//job 52389, 52655
-		//	HashMap<String, Integer> dataModel = parserizzaOutput2(s);//per job 52383, 52384
+	/*
+			HashMap<String, Integer> dataModel = parserizzaOutput1(s1);//job 52389, 52655
+		//	HashMap<String, Integer> dataModel = parserizzaOutput2(s3);//per job 52383, 52384
 			
-		//	System.out.println("dimensione mappa: "+dataModel.size() );			
+			System.out.println("dimensione mappa: "+dataModel.size() );			
 			
 		//debug: stampo mappa ottenuta per controllo interno dei valori
-	 	/*	for( Map.Entry<String, Integer> entry : dataModel.entrySet()) {
+	 		for( Map.Entry<String, Integer> entry : dataModel.entrySet()) {
 				System.out.println(entry+" : "+entry.getValue());
 			}
 			
 			System.out.println("freemarker start");
 //USAGE (data model, template, nomefileoutput)
-			freemarker(dataModel,"temp.ftlh", "prova.csv");
-		*/
+			freemarker(dataModel,"test.ftlh", "prova");
+		
 			
 	//		nuovaQuery(client);
 			

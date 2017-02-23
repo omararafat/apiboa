@@ -1,7 +1,0 @@
-{
-  "values": [ 
-  {
-      "language": { "start": "=", "end": "," } ,
-      "value": { "start": " ", "end": "\n" } 
-  } ]
-}

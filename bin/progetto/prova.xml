@@ -2,13 +2,13 @@
 	<values>
 		<value name = "language">
 			<type> String </type>
-			<start> = </start>
-			<end> , </end>
+			<start>=</start>
+			<end>,</end>
 		</value>
 		<value name = "value">
 			<type> int </type>
-			<start> : </start>
-			<end> \n </end>
+			<start> </start>
+			<end>\n</end>
 		</value>
 	</values>
 </root>

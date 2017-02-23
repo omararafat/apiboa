@@ -1,0 +1,25 @@
+<root>
+	<values>
+		<value name = "language">
+			<type> String </type>
+			<start> = </start>
+			<end> , </end>
+		</value>
+		<value name = "value">
+			<type> int </type>
+			<start> : </start>
+			<end> \n </end>
+		</value>
+		<value name = "valugfdfde">
+			<type> igregret </type>
+			<start> greg: </start>
+			<end> \gren </end>
+		</value>
+	</values><values>
+		<value name = "language">
+			<type> Strgfdsggfsding </type>
+			<start> =dddd </start>
+			<end> fffffff, </end>
+		</value>
+	</values>
+</root>
