@@ -35,13 +35,13 @@ public enum Queries {
 				"foreach (i: int; match(`^scheme$`, lowercase(p.programming_languages[i])))\n"+
 					"counts << 1;");
 	
-	private final String testoQuery;
+	private final String queryCode;
 	
-	private Queries(final String testo){
-		this.testoQuery = testo;
+	private Queries(final String text){
+		this.queryCode = text;
 	}
 	
-	public String testo(){
-		return testoQuery;
+	public String text(){
+		return queryCode;
 	}
 }

@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.awt.Desktop;
 import java.io.File;
@@ -79,22 +80,6 @@ public class main {
 		}
 	}
 	
-	public static void nuovaQuery(BoaClient client) throws Exception{
-
-		//  invio di una query
-		JobHandle query = client.query(Queries.QUERY4.testo());
-		
-		risCompile(query);//controllo stato compilatore
-		
-		if(attendiOutputQuery(query)!=null){
-	//		System.out.println("\nexecutionstate:\t"+query.getExecutionStatus());
-			System.out.println("risultato:\t"+query.getOutput());
-	//		System.out.println("\nSource:\t"+ query.getSource());
-			InputHandle x = query.getDataset();
-			System.out.println("Dataset:\t"+x);
-			System.out.println("JobHandle:"+query);
-		}
-	}
 	
 	public static void stampaJobs(BoaClient client) throws Exception{
 	    System.out.println("hai inviato "+client.getJobCount()+" job");
@@ -279,20 +264,25 @@ static String s4 = "counts[10084859] = asd, 88.5 \n"+
 public static void main(String[] args){
 		System.out.println("hello world");
 		try{
+			
 			String regexs[] = new String[4];	
  			regexs[0] = "=";
 	    	regexs[1] = ",";
 	    	regexs[2] = " ";
 	    	regexs[3] = "\n";
-   	Prova2 x1 = new Prova2(2);
    	
-   			String input= "";
-			
-			input=s1+"\n";	    
+	    	
+	    	Prova2 x1 = new Prova2(2);
+	    	x1.login();
+	    	int jobID = x1.execute(Queries.QUERY1.text());//it will return the jobIf^D in case we need it later
+//execute() will set the calss internal value to the output of the program if everything goes fine	    	
+   			String input= x1.getOutputBoa();
+//input = x1.getOutputBoa / x1.execute(codice/file/job ID?);			
+		//	input=s1+"\n";	    
    			x1.parseXml(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/prova.xml") );
 	    	x1.parseOutputBoa(input);
-	    	x1.freemarker("test.ftlh", "prova");
-	    	
+	    	x1.freemarker("templateCsv.ftlh", "prova.csv");
+	   /* 	
 	    	input=s2+"\n";
 	    	x1.parseOutputBoa(input);
 	    	x1.freemarker("test.ftlh", "prova2");
@@ -301,12 +291,10 @@ public static void main(String[] args){
    			x1.parseXml(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/prova2.xml") );
 	    	x1.parseOutputBoa(input);
 	    	x1.freemarker("test.ftlh", "prova3");
-	    	
+	    */	
 	    	
 	    	//x1.parseOutputBoa2(input, 2, regexs);
-/*TODO: dentro pareseOutputBoa2 far restituire Arraylist<<T><T>> da dare in pasto a freemarker()
- * 		+ vedere se necessarie modifiche al template; facile dato che si aspettava mappa di mappe :'(
- * */	    
+			
 			
 			
 			

@@ -1,12 +1,14 @@
 package progetto;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +17,14 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import edu.iastate.cs.boa.BoaClient;
+import edu.iastate.cs.boa.BoaException;
+import edu.iastate.cs.boa.CompileStatus;
+import edu.iastate.cs.boa.ExecutionStatus;
+import edu.iastate.cs.boa.InputHandle;
+import edu.iastate.cs.boa.JobHandle;
+import edu.iastate.cs.boa.LoginException;
+import edu.iastate.cs.boa.NotLoggedInException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
@@ -26,11 +36,13 @@ import org.w3c.dom.Element;
 public class Prova2 {
 //array per salvare i tipi di variabile da leggere
 	int valueCount;
-	String regexValue[];
+	String regexValue[];//the character mapping for retrieving values
 	String typeValue[];
 	String valueName[];
-	Pattern patterns[];
+	Pattern patterns[];//for mapping the data into the dataModel for FreeMArker
 	HashMap dataModel;
+	BoaClient client;
+	String outputBoa;
 	
 //	int variableNumber;
 //	arrayList<HashMap<valuePresiDaArray>
@@ -42,9 +54,149 @@ public class Prova2 {
 		this.valueName = new String[x];
 		this.regexValue = new String[x*2];
 		this.patterns = new Pattern[x*2];
-		this.dataModel = new HashMap(); 
+		this.dataModel = new HashMap();
+		this.client = new BoaClient();
+		this.outputBoa = "";
 	}
 
+	public String getOutputBoa(){
+		return this.outputBoa;
+	}
+	
+	public void login(){
+		Scanner reader = new Scanner(System.in);  // Reading from System.in
+		System.out.println("Enter the boa login data\nusername: ");
+		String usr = reader.next(); 
+		System.out.println("password: ");
+		String pw = reader.next(); 
+		try {
+			this.client.login(usr, pw);
+		} catch (LoginException e) {
+			System.out.println("errore login.");
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		System.out.println("login succesfull");
+	}
+
+	public String getOutpuBoa(int jobID){
+		JobHandle x;
+		try {
+			x = this.client.getJob(jobID);
+		this.outputBoa = x.getOutput()+"\n";
+		} catch (NotLoggedInException e) {
+			System.out.println("you need to be logged in");
+			e.printStackTrace();
+		} catch (BoaException e1) {
+			System.out.println("Boa exception, check the stackTrace");
+			e1.printStackTrace();
+		}
+		return this.outputBoa;
+	} 
+	
+	public static void waitCompileResult(JobHandle query) throws Exception{
+		while(true){
+			if(query.getCompilerStatus().equals(CompileStatus.ERROR)){
+				System.out.println("compile error:");
+				System.out.println(query.getCompilerErrors());
+				return;
+			}
+			if(query.getCompilerStatus().equals(CompileStatus.FINISHED)){
+				System.out.println("compile successfull");
+				return;
+				
+			}
+			if(query.getCompilerStatus().equals(CompileStatus.RUNNING)){
+				System.out.println("compiling, we'll sleep for 10s");
+				Thread.sleep(10000);
+				
+			}
+			if(query.getCompilerStatus().equals(CompileStatus.WAITING)){
+				System.out.println("compiling, we'll sleep for 5 s");
+				Thread.sleep(5000);
+			}
+			query.refresh();
+		}
+	}
+
+	public static String waitOutputBoa(JobHandle query)throws Exception{
+		while(true){
+			try{
+				if(query.getExecutionStatus().equals(ExecutionStatus.ERROR)){
+					System.out.println("error while executing job");
+					return null;
+				}
+				if(query.getExecutionStatus().equals(ExecutionStatus.FINISHED)){
+					return query.getOutput();
+				}
+				if(query.getExecutionStatus().equals(ExecutionStatus.RUNNING)){
+					System.out.println("job is RUNNING; we'll sleep 15s"); 
+					Thread.sleep(15000);
+	
+				}
+				if(query.getExecutionStatus().equals(ExecutionStatus.WAITING)){
+					System.out.println("job is WAITING; we'll sleep 10s"); 
+					Thread.sleep(10000);
+				}
+			}catch (InterruptedException e) {
+				e.printStackTrace();
+				return "an exception occured while we were sleeping";
+			}
+			query.refresh();
+		}
+	}
+
+	public int execute(File file){
+		String s = "";
+		try {
+			Scanner scan = new Scanner(file);
+			scan.useDelimiter("\\Z");  
+			s = scan.next(); 
+			scan.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+		return execute(s);
+	}
+	
+	public int execute(String code){
+		try {
+			JobHandle query = this.client.query(code);
+			waitCompileResult(query);//check and wait for compile status
+			String s = "";
+			if( (s = waitOutputBoa(query)) !=null){
+				this.outputBoa = s+"\n";//we add a final new line so the parsing will work for the last value  
+				return query.getId();
+			}else
+				throw new Exception("Boa returned an empty resul for a successful job");
+		} catch (NotLoggedInException e1) {
+			System.out.println("you need to be logged in");
+			e1.printStackTrace();
+		} catch (BoaException e1) {
+			System.out.println("Boa exception, check the stackTrace");
+			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
+	public void printJobs() throws Exception{
+	    System.out.println("you have sent "+this.client.getJobCount()+" job");
+	    Scanner reader = new Scanner(System.in);  // Reading from System.in
+		System.out.println("Do you want to print the outputs too? Y/N ");
+		String choice = reader.next();
+	    for (final JobHandle jh : this.client.getJobList()){		
+			System.out.println("job description:\t"+jh);
+			if( jh.getExecutionStatus().equals(ExecutionStatus.FINISHED) && choice.equals("Y") ){ 
+				System.out.println("output:\n"+jh.getOutput()+"\n");
+			}
+		}
+	}
+
+	
+	
 	
 	public void parseXml(File file){
 		try {
@@ -60,8 +212,10 @@ public class Prova2 {
 				Element x = (Element) variablesList.item(i);
 				NodeList valueList = x.getElementsByTagName("value");
 
-				if( valueList.getLength() != this.valueCount) System.out.println(variablesList.getLength()+"fsdsdsdsdsdsd");
-//TODO lanciare errore
+				if( valueList.getLength() != this.valueCount){
+					System.out.println("expecting to read "+variablesList.getLength()+" values, but i'm configured to read "+this.valueCount+" different values\n terminating");
+					System.exit(-4);					
+				}
 
 				for (int k = 0 ; k < valueList.getLength(); k++){//in here we read all the parameter we need
 					Node valueNode = valueList.item(k);
@@ -72,66 +226,28 @@ public class Prova2 {
 			        this.regexValue[count++]=valueElement.getElementsByTagName("start").item(0).getTextContent();
 			        this.regexValue[count++]=valueElement.getElementsByTagName("end").item(0).getTextContent();
 				}
-				
 			}
-	/*		for (int i = 0; i<this.valueCount*2; i++) System.out.println(i+"regexvalue "+this.regexValue[i]);
-			System.out.println();
-			for (int i = 0; i<this.valueCount; i++) System.out.println(i+"typevalue "+this.typeValue[i]);*/
-			
 		} catch (Exception e) {
+			System.out.println("something went wrong, check the StackTrace");
 	    	e.printStackTrace();
 	    }
 	  }
 	
-	
-	public void parseJson(String filePath){
-/*		FileReader reader = new FileReader(new File("filename.json"));
-
-
-	    JSONParser jsonParser = new JSONParser();
-	    JSONArray jsonArray = (JSONArray) jsonParser.parse(reader);
-	    JSONObject object = (JSONObject) jsonArray.get(0);
-	    long elementaryProductId = (Long) object.get("elementaryProductId");
-*/
-
-
-/*TODO here: 	this.valueCount =
- 				this.arrayTipiVAriabile =
- 		StringReader reader = new StringReader("[]");
-		JsonParser parser = Json.createParser(reader);
-*//*		FileReader reader = new FileReader(filePath);
-		
-		JsonReader jsonParser  = Json.createReader(reader)) {
-		JsonObject jsonObject = jsonParser.readObject();
-		JsonObject object;
-		
-		JsonArray results = jsonObject.getJsonArray("data");
-		
-		JsonObject jsonObject = (Jsonbject) jsonParser.parse(reader);
-	// get a String from the JSON object
-		String firstName = (String) jsonObject.get("firstname");
-		System.out.println("The first name is: " + firstName);
-*/
-		
-		
-		
+	public HashMap parseOutputBoa(){
+		return this.parseOutputBoa(this.outputBoa);
 	}
-
-
 	public HashMap parseOutputBoa(String outputBoa){
 		int regexCount = this.valueCount*2; //start/end delimiter for each value
     	int start, end;
     	String outputs[] = new String[this.valueCount];
 
     	for(int i = 0; i < regexCount; i++){
-    		System.out.println("patter: "+i);
     		this.patterns[i] = Pattern.compile(this.regexValue[i]);
-//    		System.out.println("patter: "+this.patterns[i]);
     	}
 
     	Matcher match = this.patterns[0].matcher(outputBoa);//inizializzo il matching
-int count = 0;
-	    	HashMap value = new HashMap();
+    	int count = 0;
+	    HashMap value = new HashMap();
 	    while(match.find()){//right here we "parse" the variable name of the boa's output 
     		start = match.start();
 	    	end = match.end();
@@ -142,20 +258,14 @@ int count = 0;
 		    	end = match.end();
 		    	if( i%2 == 1){    	
 		    		outputs[i/2] = outputBoa.substring(start, end-1);//right here we save the wanted value
-//		HashMap< HashMap<String, linguaggio>, HashMap<int, value> >	????		    		
-		   // 		System.out.println(this.typeValue[i/2]+" "+this.valueName[i/2]+"\t"+outputs[i/2]+"\n");
-		    		
+//		    		System.out.println(this.typeValue[i/2]+" "+this.valueName[i/2]+"\t"+outputs[i/2]+"\n");
 		    	}
 	    	}
 	    	value.put(outputs[0], outputs[1]);
-	 //   	System.out.println("\t"+value);
 	    	this.dataModel.put("key", value);
 	//    	for(int k=0; k<this.valueCount; k++){  		System.out.println(k+" "+outputs[k]);		}
 	    	match.usePattern(this.patterns[0]);//before restarting the cycle we reset the initial pattern
 	    }
-	    
-	    System.out.println("stampa risultato:");
-	//    System.out.println(result);
 	    return this.dataModel;
 	}
 	
