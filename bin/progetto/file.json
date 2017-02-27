@@ -1,8 +1,0 @@
-{
-  "values": [
-  {
-      "value": { "start": "=", "end": "," } ,
-      "value": { "start": " ", "end": "\n" }
-      }
-   ] 
-}

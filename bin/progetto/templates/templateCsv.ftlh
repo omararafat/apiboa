@@ -1,5 +1,5 @@
 <#setting number_format="computer">
-Language,value
+data,value
 <#list key as k, val>
 ${k},${val}
 </#list>

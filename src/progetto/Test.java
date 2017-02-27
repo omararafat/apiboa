@@ -2,12 +2,8 @@ package progetto;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +17,6 @@ import edu.iastate.cs.boa.BoaClient;
 import edu.iastate.cs.boa.BoaException;
 import edu.iastate.cs.boa.CompileStatus;
 import edu.iastate.cs.boa.ExecutionStatus;
-import edu.iastate.cs.boa.InputHandle;
 import edu.iastate.cs.boa.JobHandle;
 import edu.iastate.cs.boa.LoginException;
 import edu.iastate.cs.boa.NotLoggedInException;
@@ -32,9 +27,7 @@ import freemarker.template.TemplateExceptionHandler;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
-
-public class Prova2 {
-//array per salvare i tipi di variabile da leggere
+public class Test {
 	int valueCount;
 	String regexValue[];//the character mapping for retrieving values
 	String typeValue[];
@@ -43,12 +36,8 @@ public class Prova2 {
 	HashMap dataModel;
 	BoaClient client;
 	String outputBoa;
-	
-//	int variableNumber;
-//	arrayList<HashMap<valuePresiDaArray>
-	
-	public Prova2(int x) {
-		// TODO Auto-generated constructor stub
+
+	public Test(int x) {
 		this.valueCount = x;
 		this.typeValue = new String[x];
 		this.valueName = new String[x];
@@ -77,6 +66,7 @@ public class Prova2 {
 			System.exit(-1);
 		}
 		System.out.println("login succesfull");
+		reader.close();
 	}
 
 	public String getOutpuBoa(int jobID){
@@ -112,7 +102,7 @@ public class Prova2 {
 				
 			}
 			if(query.getCompilerStatus().equals(CompileStatus.WAITING)){
-				System.out.println("compiling, we'll sleep for 5 s");
+				System.out.println("waiting for compile, we'll sleep for 5 s");
 				Thread.sleep(5000);
 			}
 			query.refresh();
@@ -145,7 +135,7 @@ public class Prova2 {
 			query.refresh();
 		}
 	}
-
+//to be tested; call execute(String) on file content
 	public int execute(File file){
 		String s = "";
 		try {
@@ -154,7 +144,6 @@ public class Prova2 {
 			s = scan.next(); 
 			scan.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  
 		return execute(s);
@@ -166,10 +155,10 @@ public class Prova2 {
 			waitCompileResult(query);//check and wait for compile status
 			String s = "";
 			if( (s = waitOutputBoa(query)) !=null){
-				this.outputBoa = s+"\n";//we add a final new line so the parsing will work for the last value  
+				this.outputBoa = s+"\n";//we add a final new line so the parsing will work for the last value
 				return query.getId();
 			}else
-				throw new Exception("Boa returned an empty resul for a successful job");
+				throw new Exception("Boa returned an empty result for a successful job; we have nothing to parse");
 		} catch (NotLoggedInException e1) {
 			System.out.println("you need to be logged in");
 			e1.printStackTrace();
@@ -193,11 +182,9 @@ public class Prova2 {
 				System.out.println("output:\n"+jh.getOutput()+"\n");
 			}
 		}
+	    reader.close();
 	}
 
-	
-	
-	
 	public void parseXml(File file){
 		try {
 		
@@ -216,8 +203,8 @@ public class Prova2 {
 					System.out.println("expecting to read "+variablesList.getLength()+" values, but i'm configured to read "+this.valueCount+" different values\n terminating");
 					System.exit(-4);					
 				}
-
-				for (int k = 0 ; k < valueList.getLength(); k++){//in here we read all the parameter we need
+//in here we read all the parameters we'll need later for creating the appropriate datamodel
+				for (int k = 0 ; k < valueList.getLength(); k++){
 					Node valueNode = valueList.item(k);
 					Element valueElement = (Element) valueNode;
 		            NodeList list = valueElement.getElementsByTagName("*");
@@ -237,7 +224,7 @@ public class Prova2 {
 		return this.parseOutputBoa(this.outputBoa);
 	}
 	public HashMap parseOutputBoa(String outputBoa){
-		int regexCount = this.valueCount*2; //start/end delimiter for each value
+		int regexCount = this.valueCount*2; //start and end delimiter for each value
     	int start, end;
     	String outputs[] = new String[this.valueCount];
 
@@ -245,9 +232,8 @@ public class Prova2 {
     		this.patterns[i] = Pattern.compile(this.regexValue[i]);
     	}
 
-    	Matcher match = this.patterns[0].matcher(outputBoa);//inizializzo il matching
-    	int count = 0;
-	    HashMap value = new HashMap();
+    	Matcher match = this.patterns[0].matcher(outputBoa);//initialize matching
+    	HashMap value = new HashMap();
 	    while(match.find()){//right here we "parse" the variable name of the boa's output 
     		start = match.start();
 	    	end = match.end();
@@ -258,17 +244,14 @@ public class Prova2 {
 		    	end = match.end();
 		    	if( i%2 == 1){    	
 		    		outputs[i/2] = outputBoa.substring(start, end-1);//right here we save the wanted value
-//		    		System.out.println(this.typeValue[i/2]+" "+this.valueName[i/2]+"\t"+outputs[i/2]+"\n");
 		    	}
 	    	}
 	    	value.put(outputs[0], outputs[1]);
 	    	this.dataModel.put("key", value);
-	//    	for(int k=0; k<this.valueCount; k++){  		System.out.println(k+" "+outputs[k]);		}
 	    	match.usePattern(this.patterns[0]);//before restarting the cycle we reset the initial pattern
 	    }
 	    return this.dataModel;
 	}
-	
 	
 	public void freemarker(String template, String outputFile) throws Exception{
 		// Create your Configuration instance, and specify if up to what FreeMarker
@@ -276,8 +259,7 @@ public class Prova2 {
 		// backward-compatible. See the Configuration JavaDoc for details.
 		Configuration cfg = new Configuration(Configuration.VERSION_2_3_25);
 
-		// Specify the source where the template files come from. Here I set a
-		// plain directory for it, but non-file-system sources are possible too:
+		// Specify the source where the template files come from.
 		cfg.setDirectoryForTemplateLoading(new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/templates"));
 
 		// Set the preferred charset template files are stored in. UTF-8 is
@@ -285,62 +267,16 @@ public class Prova2 {
 		cfg.setDefaultEncoding("UTF-8");
 
 		// Sets how errors will appear.
-		// During web page *development* TemplateExceptionHandler.HTML_DEBUG_HANDLER is better.
-//		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 
 		// Don't log exceptions inside FreeMarker that it will thrown at you anyway:
 		cfg.setLogTemplateExceptions(false);
-
 		
 //------fine creazione configurazione per freemarker--------
-		
-		
-	//	OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/output2.html", true), "UTF-8");
+			
 		Template temp = cfg.getTemplate(template);
 		File x = new File("C:/progetto tesi/eclipse workspace/progetto/src/progetto/output/"+outputFile);
 		FileWriter out = new FileWriter(x);
 		temp.process(this.dataModel, out);
-//lancio browser per visualizzare output
-	//	Desktop.getDesktop().browse( new URI("file:///"+pathFile+ outputFile) );
-		
 	}
-	
-	
-
-//TODO: rendere valueCount, attributo della classe e settarlo dentro parseJson()	
-public static void parseOutputBoa2(String outputBoa, int valueCount, String[] regexs){
-		int regexCount = valueCount*2; //start/end delimiter for each value
-    	int start, end;
-    	Pattern patterns[] = new Pattern[regexCount];
-    	String outputs[] = new String[regexCount/2];
-    	
-    	for(int i = 0; i < regexCount; i++){
-    		patterns[i] = Pattern.compile(regexs[i]);
-    		System.out.println("patter: "+patterns[i]);
-    	}
-
-    	Matcher match = patterns[0].matcher(outputBoa);//inizializzo il matching
-
-	    while(match.find()){//right here we "parse" the variable name of the boa's output 
-    		start = match.start();
-	    	end = match.end();
-	    	for (int i = 1; i < regexCount; i++){
-		    	match.usePattern(patterns[i]);
-		    	match.find();
-		    	start = end;
-		    	end = match.end();
-		    	if( i%2 == 1){    	
-		    		outputs[i/2] = outputBoa.substring(start, end-1);//right here we save the wanted value
-		    	}
-
-	    	}
-	    	for(int k=0; k<valueCount; k++){ 		System.out.println(k+" "+outputs[k]);  	}
-//TODO here: riempire this.ArrayList
-	    	match.usePattern(patterns[0]);//before restarting the cycle we reset the initial pattern
-	    }
-	}
-
-
-	
 }

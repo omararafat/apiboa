@@ -1,7 +1,7 @@
 package progetto;
 
 public enum Queries {
-//Example Queries dal sito
+//Example Queries from boa's site
 		// Counting the 10 most used programming languages
 		QUERY1(" p: Project = input;\n"+
 				"counts: output top(10) of string weight int;\n"+
