@@ -28,18 +28,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 public class Test {
-	int valueCount;
-	String regexValue[];//the character mapping for retrieving values
-	String typeValue[];
+	private int valueCount;
+	private String regexValue[];//the character mapping for retrieving values
+	String valueType[];
 	String valueName[];
-	Pattern patterns[];//for mapping the data into the dataModel for FreeMArker
-	HashMap dataModel;
-	BoaClient client;
-	String outputBoa;
+	private Pattern patterns[];//for mapping the data into the dataModel for FreeMArker
+	private HashMap dataModel;
+	private BoaClient client;
+	private String outputBoa;
 
 	public Test(int x) {
 		this.valueCount = x;
-		this.typeValue = new String[x];
+		this.valueType = new String[x];
 		this.valueName = new String[x];
 		this.regexValue = new String[x*2];
 		this.patterns = new Pattern[x*2];
@@ -208,12 +208,16 @@ public class Test {
 					Node valueNode = valueList.item(k);
 					Element valueElement = (Element) valueNode;
 		            NodeList list = valueElement.getElementsByTagName("*");
-			        this.typeValue[k] = valueElement.getElementsByTagName("type").item(0).getTextContent();
+			        this.valueType[k] = valueElement.getElementsByTagName("type").item(0).getTextContent();
 			        this.valueName[k] = valueElement.getAttribute("name");
 			        this.regexValue[count++]=valueElement.getElementsByTagName("start").item(0).getTextContent();
 			        this.regexValue[count++]=valueElement.getElementsByTagName("end").item(0).getTextContent();
 				}
 			}
+			
+	    	for(int i = 0; i < this.valueCount*2; i++){
+	    		this.patterns[i] = Pattern.compile(this.regexValue[i]);
+	    	}
 		} catch (Exception e) {
 			System.out.println("something went wrong, check the StackTrace");
 	    	e.printStackTrace();
@@ -227,10 +231,6 @@ public class Test {
 		int regexCount = this.valueCount*2; //start and end delimiter for each value
     	int start, end;
     	String outputs[] = new String[this.valueCount];
-
-    	for(int i = 0; i < regexCount; i++){
-    		this.patterns[i] = Pattern.compile(this.regexValue[i]);
-    	}
 
     	Matcher match = this.patterns[0].matcher(outputBoa);//initialize matching
     	HashMap value = new HashMap();
