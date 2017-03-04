@@ -1,11 +1,11 @@
 <root>
 	<values>
-		<value name = "language">
+		<value name = "projectID">
 			<type> String </type>
 			<start>\[</start>
 			<end>\]</end>
 		</value>
-		<value name = "value">
+		<value name = "churnRate">
 			<type> int </type>
 			<start>=</start>
 			<end>\n</end>

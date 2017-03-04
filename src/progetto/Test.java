@@ -33,7 +33,7 @@ public class Test {
 	String valueType[];
 	String valueName[];
 	private Pattern patterns[];//for mapping the data into the dataModel for FreeMArker
-	private HashMap dataModel;
+	HashMap dataModel;
 	private BoaClient client;
 	private String outputBoa;
 
